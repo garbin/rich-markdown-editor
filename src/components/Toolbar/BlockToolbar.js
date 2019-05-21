@@ -159,7 +159,7 @@ class BlockToolbar extends React.Component<Props> {
       return null;
 
     return (
-      <ToolbarButton onMouseDown={ev => this.handleClickBlock(ev, type)}>
+      <ToolbarButton type='button' onMouseDown={ev => this.handleClickBlock(ev, type)}>
         <IconClass color={this.props.theme.blockToolbarItem} />
       </ToolbarButton>
     );
@@ -211,6 +211,7 @@ const Bar = styled.div`
 
   &:before,
   &:after {
+    display: none;
     content: "";
     position: absolute;
     left: -100%;

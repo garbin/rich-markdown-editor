@@ -1,5 +1,5 @@
 {
-  "name": "rich-markdown-editor",
+  "name": "@garbin/rich-markdown-editor",
   "description": "A rich text editor with Markdown shortcuts built on Slate",
   "version": "9.4.2",
   "main": "lib/index.js",
