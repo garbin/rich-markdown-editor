@@ -1,6 +1,6 @@
 // @flow
 import * as React from "react";
-import styled, { withTheme } from "styled-components";
+import { withTheme } from "styled-components";
 import { Editor } from "slate-react";
 import {
   BoldIcon,
@@ -12,8 +12,10 @@ import {
   LinkIcon,
   StrikethroughIcon,
 } from "outline-icons";
+
 import type { Theme, Mark, Block } from "../../types";
 import ToolbarButton from "./ToolbarButton";
+import Separator from "./Separator";
 
 type Props = {
   editor: Editor,
@@ -37,8 +39,15 @@ class FormattingToolbar extends React.Component<Props> {
   };
 
   isBlock = (type: string) => {
-    const startBlock = this.props.editor.value.startBlock;
-    return startBlock && startBlock.type === type;
+    const { startBlock, document } = this.props.editor.value;
+
+    // accounts for blocks with an inner paragraph tag
+    const parent = startBlock && document.getParent(startBlock.key);
+
+    return (
+      (startBlock && startBlock.type === type) ||
+      (parent && parent.type === type)
+    );
   };
 
   /**
@@ -67,8 +76,16 @@ class FormattingToolbar extends React.Component<Props> {
   onClickBlock = (ev: SyntheticEvent<*>, type: string) => {
     ev.preventDefault();
     ev.stopPropagation();
+    const { editor } = this.props;
+    const { startBlock, document } = editor.value;
+    const parent = document.getParent(startBlock.key);
 
-    this.props.editor.setBlocks(type);
+    editor.setNodeByKey(startBlock.key, type);
+
+    // accounts for blocks with an inner paragraph tag
+    if (parent && parent.type && type === "paragraph") {
+      editor.setNodeByKey(parent.key, type);
+    }
   };
 
   handleCreateLink = (ev: SyntheticEvent<*>) => {
@@ -107,6 +124,7 @@ class FormattingToolbar extends React.Component<Props> {
 
   renderBlockButton = (type: Block, IconClass: Function) => {
     const { hiddenToolbarButtons } = this.props.theme;
+
     if (
       hiddenToolbarButtons &&
       hiddenToolbarButtons.blocks &&
@@ -115,6 +133,7 @@ class FormattingToolbar extends React.Component<Props> {
       return null;
 
     const isActive = this.isBlock(type);
+
     const onMouseDown = ev =>
       this.onClickBlock(ev, isActive ? "paragraph" : type);
 
@@ -126,16 +145,22 @@ class FormattingToolbar extends React.Component<Props> {
   };
 
   render() {
+    const isSelectionInTable = this.props.editor.isSelectionInTable();
+
     return (
       <div>
         {this.renderMarkButton("bold", BoldIcon)}
         {this.renderMarkButton("italic", ItalicIcon)}
         {this.renderMarkButton("deleted", StrikethroughIcon)}
         {this.renderMarkButton("code", CodeIcon)}
-        <Separator />
-        {this.renderBlockButton("heading2", Heading1Icon)}
-        {this.renderBlockButton("heading3", Heading2Icon)}
-        {this.renderBlockButton("block-quote", BlockQuoteIcon)}
+        {!isSelectionInTable && (
+          <React.Fragment>
+            <Separator />
+            {this.renderBlockButton("heading2", Heading1Icon)}
+            {this.renderBlockButton("heading3", Heading2Icon)}
+            {this.renderBlockButton("block-quote", BlockQuoteIcon)}
+          </React.Fragment>
+        )}
         <Separator />
         <ToolbarButton onMouseDown={this.handleCreateLink}>
           <LinkIcon color={this.props.theme.toolbarItem} />
@@ -144,14 +169,5 @@ class FormattingToolbar extends React.Component<Props> {
     );
   }
 }
-
-const Separator = styled.div`
-  height: 100%;
-  width: 1px;
-  background: ${props => props.theme.toolbarItem};
-  opacity: 0.2;
-  display: inline-block;
-  margin-left: 10px;
-`;
 
 export default withTheme(FormattingToolbar);
