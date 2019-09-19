@@ -167,10 +167,12 @@ export default class Toolbar extends React.Component<Props, State> {
               onBlur={this.hideLinkToolbar}
             />
           ) : (
-            <FormattingToolbar
-              onCreateLink={this.showLinkToolbar}
-              {...this.props}
-            />
+            <div>
+              <FormattingToolbar
+                onCreateLink={this.showLinkToolbar}
+                {...this.props}
+              />
+            </div>
           )}
         </Menu>
       </Portal>
