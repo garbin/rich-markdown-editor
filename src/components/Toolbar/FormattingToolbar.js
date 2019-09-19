@@ -158,7 +158,6 @@ class FormattingToolbar extends React.Component<Props> {
     const Tooltip = editor.props.tooltip;
 
     return (
-      <div>
         <React.Fragment>
           {!isSelectionInHeading && (
             <React.Fragment>
@@ -192,7 +191,6 @@ class FormattingToolbar extends React.Component<Props> {
             </React.Fragment>
           )}
         </React.Fragment>
-      </div>
     );
   }
 }
