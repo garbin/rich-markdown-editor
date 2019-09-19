@@ -14,7 +14,7 @@ class Image extends React.Component<Props, State> {
     hasError: false,
   };
 
-  handleKeyDown = (ev: SyntheticKeyboardEvent<*>) => {
+  handleKeyDown = (ev: SyntheticKeyboardEvent<>) => {
     if (ev.key === "Enter" || ev.key === "ArrowDown") {
       ev.preventDefault();
       const { editor, node } = this.props;
@@ -25,7 +25,7 @@ class Image extends React.Component<Props, State> {
     }
   };
 
-  handleChange = (ev: SyntheticInputEvent<*>) => {
+  handleChange = (ev: SyntheticInputEvent<>) => {
     ev.stopPropagation();
     const alt = ev.target.value;
     const { editor, node } = this.props;
@@ -34,7 +34,7 @@ class Image extends React.Component<Props, State> {
     editor.setNodeByKey(node.key, { data: { ...data, alt } });
   };
 
-  handleClick = (ev: SyntheticInputEvent<*>) => {
+  handleClick = (ev: SyntheticInputEvent<>) => {
     ev.stopPropagation();
   };
 
@@ -120,7 +120,7 @@ const ErrorMessage = styled.div`
 
 // This wrapper allows us to pass non-standard HTML attributes through to the DOM element
 // https://www.styled-components.com/docs/basics#passed-props
-const Img = props => <img {...props} />;
+const Img = props => <img alt={props.alt} {...props} />;
 
 const HiddenImg = styled(Img)`
   display: none;

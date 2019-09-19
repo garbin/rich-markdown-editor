@@ -1,10 +1,11 @@
 // @flow
 import * as React from "react";
 import styled from "styled-components";
+import type { SlateNodeProps as Props } from "../../types";
 import Toolbar from "./Toolbar";
 import Grip from "./Grip";
 
-class Cell extends React.Component<*> {
+class Cell extends React.Component<Props> {
   cell: ?HTMLElement;
 
   render() {
@@ -117,21 +118,21 @@ class Cell extends React.Component<*> {
 }
 
 export const GripTable = styled(Grip)`
-  width: 9px;
-  height: 9px;
-  border-radius: 9px;
+  width: 13px;
+  height: 13px;
+  border-radius: 13px;
   border: 2px solid ${props => props.theme.background};
 
   position: absolute;
-  top: -14px;
-  left: -14px;
+  top: -18px;
+  left: -18px;
 `;
 
 export const GripRow = styled(Grip)`
-  left: -12px;
-  top: 0.5px;
+  left: -16px;
+  top: 0px;
   height: 100%;
-  width: 8px;
+  width: 12px;
   border-right: 3px solid ${props => props.theme.background};
 
   ${props =>
@@ -150,10 +151,10 @@ export const GripRow = styled(Grip)`
 `;
 
 export const GripColumn = styled(Grip)`
-  top: -12px;
-  left: -0.5px;
+  top: -16px;
+  left: 0px;
   width: 100%;
-  height: 8px;
+  height: 12px;
   border-bottom: 3px solid ${props => props.theme.background};
 
   ${props =>
@@ -172,7 +173,7 @@ export const GripColumn = styled(Grip)`
 `;
 
 const RowContent = styled.div`
-  padding: 4px 8px;
+  padding: 4px 12px;
   text-align: ${props => props.align};
 `;
 
@@ -188,7 +189,6 @@ const StyledTd = styled.td`
   ${props =>
     props.isFirstRow &&
     `
-  box-shadow: 0 1px 1px ${props.theme.tableDivider};
   min-width: 100px;
   `}
 `;

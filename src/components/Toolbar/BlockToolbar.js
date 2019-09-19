@@ -47,7 +47,7 @@ class BlockToolbar extends React.Component<Props> {
     }
   }
 
-  handleOutsideMouseClick = (ev: SyntheticMouseEvent<*>) => {
+  handleOutsideMouseClick = (ev: SyntheticMouseEvent<>) => {
     const element = findDOMNode(this.bar);
 
     if (
@@ -61,7 +61,7 @@ class BlockToolbar extends React.Component<Props> {
   };
 
   @keydown("esc")
-  removeSelf(ev: SyntheticEvent<*>) {
+  removeSelf(ev: SyntheticEvent<>) {
     ev.preventDefault();
     ev.stopPropagation();
 
@@ -81,7 +81,7 @@ class BlockToolbar extends React.Component<Props> {
     editor.moveToEndOfNode(this.props.node);
 
     if (options.type === "table") {
-      editor.insertTable(3, 3);
+      editor.insertTable(3, 3).moveSelection(0, 0);
     } else {
       editor.insertBlock(options.type);
     }
@@ -97,20 +97,22 @@ class BlockToolbar extends React.Component<Props> {
     const { editor } = this.props;
     const checked = type === "todo-list" ? false : undefined;
 
-    editor
+    this.props.editor.setNodeByKey(this.props.node.key, {
+      type: "paragraph",
+      text: "",
+      isVoid: false,
+    });
+
+    return editor
       .moveToEndOfNode(this.props.node)
       .command(changes.wrapInList, type, undefined, {
         type: "list-item",
         data: { checked },
-      });
-
-    return editor
-      .removeNodeByKey(this.props.node.key)
-      .moveToEndOfNextBlock()
+      })
       .focus();
   };
 
-  handleClickBlock = (ev: SyntheticEvent<*>, type: string) => {
+  handleClickBlock = (ev: SyntheticEvent<>, type: string) => {
     ev.preventDefault();
     ev.stopPropagation();
 
@@ -145,7 +147,7 @@ class BlockToolbar extends React.Component<Props> {
     if (this.file) this.file.click();
   };
 
-  onImagePicked = async (ev: SyntheticInputEvent<*>) => {
+  onImagePicked = async (ev: SyntheticInputEvent<>) => {
     const files = getDataTransferFiles(ev);
     const { editor } = this.props;
 
@@ -155,18 +157,22 @@ class BlockToolbar extends React.Component<Props> {
     }
   };
 
-  renderBlockButton = (type: string, IconClass: Function) => {
+  renderBlockButton = (type: string, IconClass: Function, tooltip: string) => {
     const { hiddenToolbarButtons } = this.props.theme;
+    const Tooltip = this.props.editor.props.tooltip;
+
     if (
       hiddenToolbarButtons &&
       hiddenToolbarButtons.blocks &&
       hiddenToolbarButtons.blocks.includes(type)
-    )
+    ) {
       return null;
-
+    }
     return (
-      <ToolbarButton type='button' onMouseDown={ev => this.handleClickBlock(ev, type)}>
-        <IconClass color={this.props.theme.blockToolbarItem} />
+      <ToolbarButton type='button' style={{color:'red'}} onMouseDown={ev => this.handleClickBlock(ev, type)}>
+        <Tooltip tooltip={tooltip} placement="top">
+          <IconClass color={this.props.theme.blockToolbarItem} />
+        </Tooltip>
       </ToolbarButton>
     );
   };
@@ -177,24 +183,37 @@ class BlockToolbar extends React.Component<Props> {
 
     return (
       <Bar {...attributes} ref={ref => (this.bar = ref)}>
+        {this.renderBlockButton("heading1", Heading1Icon, "Add heading")}
+        {this.renderBlockButton("heading2", Heading2Icon, "Add subheading")}
+        <Separator />
+        {this.renderBlockButton(
+          "bulleted-list",
+          BulletedListIcon,
+          "Start bulleted list"
+        )}
+        {this.renderBlockButton(
+          "ordered-list",
+          OrderedListIcon,
+          "Start numbered List"
+        )}
+        {this.renderBlockButton("todo-list", TodoListIcon, "Start checklist")}
+        <Separator />
+        {this.renderBlockButton("table", TableIcon, "Create table")}
+        {this.renderBlockButton("block-quote", BlockQuoteIcon, "Add quote")}
+        {this.renderBlockButton("code", CodeIcon, "Add code")}
+        {this.renderBlockButton(
+          "horizontal-rule",
+          HorizontalRuleIcon,
+          "Add break"
+        )}
+        {hasImageUpload &&
+          this.renderBlockButton("image", ImageIcon, "Add image")}
         <HiddenInput
           type="file"
           ref={ref => (this.file = ref)}
           onChange={this.onImagePicked}
           accept="image/*"
         />
-        {this.renderBlockButton("heading1", Heading1Icon)}
-        {this.renderBlockButton("heading2", Heading2Icon)}
-        <Separator />
-        {this.renderBlockButton("bulleted-list", BulletedListIcon)}
-        {this.renderBlockButton("ordered-list", OrderedListIcon)}
-        {this.renderBlockButton("todo-list", TodoListIcon)}
-        <Separator />
-        {this.renderBlockButton("table", TableIcon)}
-        {this.renderBlockButton("block-quote", BlockQuoteIcon)}
-        {this.renderBlockButton("code", CodeIcon)}
-        {this.renderBlockButton("horizontal-rule", HorizontalRuleIcon)}
-        {hasImageUpload && this.renderBlockButton("image", ImageIcon)}
       </Bar>
     );
   }
@@ -210,7 +229,9 @@ const Separator = styled.div`
 
 const Bar = styled.div`
   display: flex;
-  z-index: 100;
+  z-index: ${props => {
+    return props.theme.zIndex;
+  }};
   position: relative;
   align-items: center;
   background: ${props => props.theme.blockToolbarBackground};

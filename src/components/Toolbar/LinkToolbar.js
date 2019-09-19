@@ -21,8 +21,8 @@ type Props = {
   editor: Editor,
   link: Node,
   suggestions?: Suggestion[],
-  onBlur: () => *,
-  theme: *,
+  onBlur: () => void,
+  theme: Object,
 };
 
 type State = {
@@ -33,9 +33,9 @@ type State = {
 
 @keydown
 class LinkToolbar extends React.Component<Props, State> {
-  wrapper: ?HTMLElement;
+  wrapper: ?HTMLSpanElement;
   input: ?HTMLInputElement;
-  firstDocument: ?HTMLElement;
+  firstDocument: ?LinkSearchResult;
   originalValue: string = "";
   state = {
     isEditing: false,
@@ -49,18 +49,18 @@ class LinkToolbar extends React.Component<Props, State> {
 
     if (typeof window !== "undefined") {
       setImmediate(() =>
-        window.addEventListener("click", this.handleOutsideMouseClick)
+        window.addEventListener("mousedown", this.handleOutsideMouseClick)
       );
     }
   }
 
   componentWillUnmount() {
     if (typeof window !== "undefined") {
-      window.removeEventListener("click", this.handleOutsideMouseClick);
+      window.removeEventListener("mousedown", this.handleOutsideMouseClick);
     }
   }
 
-  handleOutsideMouseClick = (ev: SyntheticMouseEvent<*>) => {
+  handleOutsideMouseClick = (ev: SyntheticMouseEvent<>) => {
     // check if we're clicking inside the link toolbar
     const element = findDOMNode(this.wrapper);
     if (
@@ -111,7 +111,7 @@ class LinkToolbar extends React.Component<Props, State> {
     this.setState({ isFetching: false });
   };
 
-  selectSearchResult = (ev: SyntheticEvent<*>, url: string) => {
+  selectSearchResult = (ev: SyntheticEvent<>, url: string) => {
     ev.preventDefault();
     this.save(url);
   };
@@ -120,7 +120,7 @@ class LinkToolbar extends React.Component<Props, State> {
     this.save(this.originalValue);
   };
 
-  onKeyDown = (ev: SyntheticKeyboardEvent<*>) => {
+  onKeyDown = (ev: SyntheticKeyboardEvent<>) => {
     switch (ev.key) {
       case "Enter":
         ev.preventDefault();
@@ -141,7 +141,7 @@ class LinkToolbar extends React.Component<Props, State> {
     }
   };
 
-  onChange = (ev: SyntheticInputEvent<*>) => {
+  onChange = (ev: SyntheticInputEvent<>) => {
     if (!this.props.editor.props.onSearchLink) return;
 
     try {
@@ -154,7 +154,7 @@ class LinkToolbar extends React.Component<Props, State> {
     this.setState({ results: [] });
   };
 
-  onResultKeyDown = (ev: SyntheticKeyboardEvent<*>) => {
+  onResultKeyDown = (ev: SyntheticKeyboardEvent<>) => {
     if (ev.key === "Escape") {
       ev.preventDefault();
       ev.stopPropagation();
@@ -166,7 +166,7 @@ class LinkToolbar extends React.Component<Props, State> {
     this.save("");
   };
 
-  openLink = (ev: SyntheticMouseEvent<*>) => {
+  openLink = (ev: SyntheticMouseEvent<>) => {
     const { link, editor } = this.props;
     const href = link.data.get("href");
 
@@ -183,6 +183,11 @@ class LinkToolbar extends React.Component<Props, State> {
     href = href.trim();
 
     if (href) {
+      // If the input doesn't start with protocol or relative slash, make sure
+      // a protocol is added
+      if (!href.startsWith("/") && !href.match(/^https?:\/\//i)) {
+        href = `https://${href}`;
+      }
       editor.setNodeByKey(link.key, { type: "link", data: { href } });
     } else if (link) {
       editor.unwrapInlineByKey(link.key);
@@ -191,17 +196,18 @@ class LinkToolbar extends React.Component<Props, State> {
     this.props.onBlur();
   };
 
-  setFirstResultRef = (ref: *) => {
+  setFirstResultRef = (ref: ?LinkSearchResult) => {
     this.firstDocument = ref;
   };
 
-  setWrapperRef = (ref: *) => {
+  setWrapperRef = (ref: ?HTMLSpanElement) => {
     this.wrapper = ref;
   };
 
   render() {
     const href = this.props.link.data.get("href");
     const hasResults = this.state.results.length > 0;
+    const Tooltip = this.props.editor.props.tooltip;
 
     return (
       <span ref={this.setWrapperRef}>
@@ -216,14 +222,20 @@ class LinkToolbar extends React.Component<Props, State> {
           />
           {this.state.isEditing && (
             <ToolbarButton onMouseDown={this.openLink}>
-              <OpenIcon color={this.props.theme.toolbarItem} />
+              <Tooltip tooltip="Open link" placement="top">
+                <OpenIcon color={this.props.theme.toolbarItem} />
+              </Tooltip>
             </ToolbarButton>
           )}
           <ToolbarButton onMouseDown={this.removeLink}>
             {this.state.isEditing ? (
-              <TrashIcon color={this.props.theme.toolbarItem} />
+              <Tooltip tooltip="Remove link" placement="top">
+                <TrashIcon color={this.props.theme.toolbarItem} />
+              </Tooltip>
             ) : (
-              <CloseIcon color={this.props.theme.toolbarItem} />
+              <Tooltip tooltip="Discard link" placement="top">
+                <CloseIcon color={this.props.theme.toolbarItem} />
+              </Tooltip>
             )}
           </ToolbarButton>
         </LinkEditor>

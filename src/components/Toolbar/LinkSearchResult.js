@@ -4,19 +4,22 @@ import styled from "styled-components";
 import { NextIcon } from "outline-icons";
 
 type Props = {
-  onClick: (SyntheticEvent<*>) => *,
+  onClick: (SyntheticEvent<>) => void,
   title: string,
 };
 
-function LinkSearchResult({ title, ...rest }: Props) {
-  return (
-    <ListItem {...rest} href="">
-      <i>
-        <NextIcon light />
-      </i>
-      {title}
-    </ListItem>
-  );
+class LinkSearchResult extends React.Component<Props> {
+  render() {
+    const { title, ...rest } = this.props;
+    return (
+      <ListItem {...rest} href="">
+        <i>
+          <NextIcon light />
+        </i>
+        {title}
+      </ListItem>
+    );
+  }
 }
 
 const ListItem = styled.a`

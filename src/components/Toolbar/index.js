@@ -53,6 +53,7 @@ export default class Toolbar extends React.Component<Props, State> {
 
   hideLinkToolbar = () => {
     this.setState({ link: undefined });
+    this.update();
   };
 
   handleMouseDown = () => {
@@ -65,7 +66,7 @@ export default class Toolbar extends React.Component<Props, State> {
     this.update();
   };
 
-  showLinkToolbar = (ev: SyntheticEvent<*>) => {
+  showLinkToolbar = (ev: SyntheticEvent<>) => {
     ev.preventDefault();
     ev.stopPropagation();
 
@@ -102,9 +103,6 @@ export default class Toolbar extends React.Component<Props, State> {
     let active = true;
 
     if (!value.startBlock) return;
-
-    // don't display toolbar for document title
-    if (value.startBlock.type === "heading1") active = false;
 
     // don't display toolbar for code blocks, code-lines or inline code
     if (value.startBlock.type.match(/code/)) active = false;
@@ -183,7 +181,9 @@ export default class Toolbar extends React.Component<Props, State> {
 export const Menu = styled.div`
   padding: 8px 16px;
   position: absolute;
-  z-index: 200;
+  z-index: ${props => {
+    return props.theme.zIndex + 100;
+  }};
   top: -10000px;
   left: -10000px;
   opacity: 0;

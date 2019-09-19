@@ -69,6 +69,18 @@ Allows overriding the inbuilt theme to brand the editor, for example use your ow
 
 With `dark` set to `true` the editor will use a default dark theme that's included. See the [source here](/src/theme.js).
 
+#### `tooltip`
+
+A React component that will be wrapped around items that have an optional tooltip. You can use this to inject your own tooltip library into the editor – the component will be passed the following props:
+
+- `tooltip`: A React node with the tooltip content
+- `placement`: Enum `top`, `bottom`, `left`, `right`
+- `children`: The component that the tooltip wraps, must be rendered
+
+#### `headingsOffset`
+
+A number that will offset the document headings by a number of levels. For example, if you already nest the editor under a main `h1` title you might want the user to only be able to create `h2` headings and below, in this case you would set the prop to `1`.
+
 
 ### Callbacks
 
@@ -149,10 +161,6 @@ import { history } from "react-router";
   }}
 />
 ```
-
-#### `renderNode`
-
-See the [Slate documentation](https://docs.slatejs.org/guides/rendering#nodes-and-marks) for an example.  There is an [inbuilt renderNode](https://github.com/outline/rich-markdown-editor/blob/master/src/nodes.js) implemented as a plugin.
 
 #### `getLinkComponent(Node)`
 

@@ -60,7 +60,7 @@ class BlockInsert extends React.Component<Props, State> {
     this.setState({ active: false });
   };
 
-  handleMouseMove = (ev: SyntheticMouseEvent<*>) => {
+  handleMouseMove = (ev: SyntheticMouseEvent<>) => {
     const triggerPoint = this.ref
       ? this.ref.getBoundingClientRect().left + 300
       : window.innerWidth;
@@ -98,7 +98,7 @@ class BlockInsert extends React.Component<Props, State> {
     }
   };
 
-  handleClick = (ev: SyntheticMouseEvent<*>) => {
+  handleClick = (ev: SyntheticMouseEvent<>) => {
     ev.preventDefault();
     ev.stopPropagation();
 
@@ -154,7 +154,9 @@ class BlockInsert extends React.Component<Props, State> {
 
 const Trigger = styled.div`
   position: absolute;
-  z-index: 199; /* must be below toolbar index */
+  z-index: ${props => {
+    return props.theme.zIndex + 99;
+  }}; /* must be below toolbar index */
   opacity: 0;
   background-color: ${props => props.theme.background};
   transition: opacity 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275),

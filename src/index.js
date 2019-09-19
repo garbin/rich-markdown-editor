@@ -27,20 +27,21 @@ export type Props = {
   plugins: Plugin[],
   autoFocus?: boolean,
   readOnly?: boolean,
+  headingsOffset?: number,
   toc?: boolean,
   dark?: boolean,
   schema?: Schema,
   theme?: Object,
   uploadImage?: (file: File) => Promise<string>,
-  onSave?: ({ done?: boolean }) => *,
-  onCancel?: () => *,
-  onChange: (value: () => string) => *,
-  onImageUploadStart?: () => *,
-  onImageUploadStop?: () => *,
+  onSave?: ({ done?: boolean }) => void,
+  onCancel?: () => void,
+  onChange: (value: () => string) => void,
+  onImageUploadStart?: () => void,
+  onImageUploadStop?: () => void,
   onSearchLink?: (term: string) => Promise<SearchResult[]>,
-  onClickLink?: (href: string) => *,
-  onShowToast?: (message: string) => *,
-  getLinkComponent?: Node => ?React.ComponentType<*>,
+  onClickLink?: (href: string) => void,
+  onShowToast?: (message: string) => void,
+  getLinkComponent?: Node => ?React.ComponentType<any>,
   className?: string,
   style?: Object,
 };
@@ -56,6 +57,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     onImageUploadStart: () => {},
     onImageUploadStop: () => {},
     plugins: [],
+    tooltip: "span",
   };
 
   editor: Editor;
@@ -136,7 +138,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     });
   };
 
-  handleDrop = async (ev: SyntheticDragEvent<*>) => {
+  handleDrop = async (ev: SyntheticDragEvent<>) => {
     if (this.props.readOnly) return;
 
     // check an image upload callback is defined
@@ -162,11 +164,11 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     this.editor.insertImageFile(file);
   };
 
-  cancelEvent = (ev: SyntheticEvent<*>) => {
+  cancelEvent = (ev: SyntheticEvent<>) => {
     ev.preventDefault();
   };
 
-  onSave(ev: SyntheticKeyboardEvent<*>) {
+  onSave(ev: SyntheticKeyboardEvent<>) {
     const { onSave } = this.props;
     if (onSave) {
       ev.preventDefault();
@@ -175,7 +177,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     }
   }
 
-  onSaveAndExit(ev: SyntheticKeyboardEvent<*>) {
+  onSaveAndExit(ev: SyntheticKeyboardEvent<>) {
     const { onSave } = this.props;
     if (onSave) {
       ev.preventDefault();
@@ -184,7 +186,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
     }
   }
 
-  onCancel(ev: SyntheticKeyboardEvent<*>) {
+  onCancel(ev: SyntheticKeyboardEvent<>) {
     const { onCancel } = this.props;
     if (onCancel) {
       ev.preventDefault();
@@ -194,7 +196,7 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown = (
-    ev: SyntheticKeyboardEvent<*>,
+    ev: SyntheticKeyboardEvent<>,
     editor: TEditor,
     next: Function = () => {}
   ) => {
@@ -305,13 +307,13 @@ class RichMarkdownEditor extends React.PureComponent<Props, State> {
 }
 
 const StyledEditor = styled(Editor)`
+  color: ${props => props.theme.text};
   background: ${props => props.theme.background};
   font-family: ${props => props.theme.fontFamily};
   font-weight: ${props => props.theme.fontWeight};
   font-size: 1em;
   line-height: 1.7em;
   width: 100%;
-  color: ${props => props.theme.text};
 
   h1,
   h2,
